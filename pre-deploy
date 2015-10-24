@@ -19,8 +19,24 @@ do
   DOMAINS="${domain} ${DOMAINS}"
 done
 
-if [ 0 -lt ${#DOMAINS} ]; then
-    dokku_log_info1 "Application domains: ${DOMAINS}"
-    dokku docker-options:add "$APP" run,deploy "-e APP_DOMAINS=${DOMAINS}"
+if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+    VHOST=$(< "$DOKKU_ROOT/VHOST")
+else
+    VHOST=$(< "$DOKKU_ROOT/HOSTNAME")
 fi
+
+SUBDOMAIN=${APP/%\.${VHOST}/}
+hostname=$(: | plugn trigger nginx-hostname $APP $SUBDOMAIN $VHOST)
+
+if [[ ! -n $hostname ]]; then
+  if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+    hostname="${APP/\//-}"
+  else
+    hostname="${APP/\//-}.$VHOST"
+  fi
+fi
+
+dokku_log_info1 "Application domain: ${hostname}"
+dokku docker-options:add "$APP" run,deploy "-e APP_DOMAIN=${hostname}"
+
 

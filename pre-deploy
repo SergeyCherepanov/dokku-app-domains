@@ -14,7 +14,7 @@ source "$PLUGIN_BASE_PATH/domains/functions"
 
 DOMAINS=""
 
-get_app_domains | while read domain
+get_app_domains ${APP} | while read domain
 do
   DOMAINS="${domain} ${DOMAINS}"
 done

@@ -1,4 +1,4 @@
 [plugin]
-description = "Automatically adds application domains implemented by domains plugin to $APP_DOMAINS vars in containers"
+description = "Automatically add application domains implemented by domains plugin to $APP_DOMAINS vars in to container"
 version = "0.4.0"
 [plugin.config]

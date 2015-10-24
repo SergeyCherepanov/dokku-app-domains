@@ -8,31 +8,22 @@ PLUGIN_BASE_PATH="${PLUGIN_PATH}"
 if [[ -n ${DOKKU_API_VERSION} ]]; then
   PLUGIN_BASE_PATH="${PLUGIN_ENABLED_PATH}"
 fi
+source "${PLUGIN_BASE_PATH}/common/functions"
 
-source "$PLUGIN_BASE_PATH/common/functions"
-source "$PLUGIN_BASE_PATH/domains/functions"
-
-DOMAINS=""
-
-get_app_domains ${APP} | while read domain
-do
-  DOMAINS="${domain} ${DOMAINS}"
-done
-
-if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
-    VHOST=$(< "$DOKKU_ROOT/VHOST")
+if [[ -f "${DOKKU_ROOT}/VHOST" ]]; then
+    VHOST=$(< "${DOKKU_ROOT}/VHOST")
 else
-    VHOST=$(< "$DOKKU_ROOT/HOSTNAME")
+    VHOST=$(< "${DOKKU_ROOT}/HOSTNAME")
 fi
 
 SUBDOMAIN=${APP/%\.${VHOST}/}
 hostname=$(: | plugn trigger nginx-hostname $APP $SUBDOMAIN $VHOST)
 
-if [[ ! -n $hostname ]]; then
-  if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+if [[ ! -n ${hostname} ]]; then
+  if [[ "${APP}" == *.* ]] && [[ "${SUBDOMAIN}" == "${APP}" ]]; then
     hostname="${APP/\//-}"
   else
-    hostname="${APP/\//-}.$VHOST"
+    hostname="${APP/\//-}.${VHOST}"
   fi
 fi
 

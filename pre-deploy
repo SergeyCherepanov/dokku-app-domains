@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+PLUGIN_BASE_PATH="${PLUGIN_PATH}"
+if [[ -n ${DOKKU_API_VERSION} ]]; then
+  PLUGIN_BASE_PATH="${PLUGIN_ENABLED_PATH}"
+fi
+
+source "$PLUGIN_BASE_PATH/common/functions"
+source "$PLUGIN_BASE_PATH/domains/functions"
+
+APP="$1";
+DOMAINS=""
+
+get_app_domains | while read domain
+do
+  DOMAINS="${domain} ${DOMAINS}"
+done
+
+if [ 0 -lt ${#DOMAINS} ]; then
+    dokku_log_info1 "Application domains: ${DOMAINS}"
+    dokku docker-options:add "$1" run,deploy "-e APP_DOMAINS=${DOMAINS}"
+fi
+
